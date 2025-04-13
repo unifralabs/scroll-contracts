@@ -7,6 +7,7 @@ import {TransparentUpgradeableProxy, ITransparentUpgradeableProxy} from "@openze
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {EmptyContract} from "../../src/misc/EmptyContract.sol";
+import {ScrollOwner} from "../../src/misc/ScrollOwner.sol";
 
 import {EnforcedTxGateway} from "../../src/L1/gateways/EnforcedTxGateway.sol";
 import {L1CustomERC20Gateway} from "../../src/L1/gateways/L1CustomERC20Gateway.sol";
@@ -114,7 +115,7 @@ contract DeployScroll is DeterministicDeployment {
     address internal L1_WETH_GATEWAY_PROXY_ADDR;
     address internal L1_WHITELIST_ADDR;
     address internal L1_PLONK_VERIFIER_ADDR;
-    address internal L1_ZKEVM_VERIFIER_V2_ADDR;
+    address internal L1_ZKEVM_VERIFIER_V1_ADDR;
     address internal L1_GAS_TOKEN_ADDR;
     address internal L1_GAS_TOKEN_GATEWAY_IMPLEMENTATION_ADDR;
     address internal L1_GAS_TOKEN_GATEWAY_PROXY_ADDR;
@@ -348,7 +349,7 @@ contract DeployScroll is DeterministicDeployment {
         deployL1Whitelist();
         deployL1ScrollChainProxy();
         deployL1ScrollMessengerProxy();
-	deployL1EnforcedTxGatewayProxy();
+        deployL1EnforcedTxGatewayProxy();
 
         deployL1MessageQueueProxy();
 
@@ -561,11 +562,6 @@ contract DeployScroll is DeterministicDeployment {
             type(ZkEvmVerifierPostEuclid).creationCode,
             constructorArgs
         );
-        /*
-                zkEvmVerifier = new ZkEvmVerifierPostEuclid(L1_PLONK_VERIFIER_ADDR, VERIFIER_DIGEST_1, VERIFIER_DIGEST_2);
-
-        logAddress("L1_ZKEVM_VERIFIER_V1_ADDR", address(zkEvmVerifier));
-        */
     }
 
     function deployL1MultipleVersionRollupVerifier() private {
@@ -987,7 +983,7 @@ contract DeployScroll is DeterministicDeployment {
                 notnull(L1_GAS_TOKEN_GATEWAY_PROXY_ADDR),
                 notnull(L2_SCROLL_MESSENGER_PROXY_ADDR),
                 notnull(L1_SCROLL_CHAIN_PROXY_ADDR),
-                notnull(L1_MESSAGE_QUEUE_PROXY_ADDR)
+                notnull(L1_MESSAGE_QUEUE_V2_PROXY_ADDR)
             );
 
             L1_SCROLL_MESSENGER_IMPLEMENTATION_ADDR = deploy(
@@ -1672,5 +1668,21 @@ contract DeployScroll is DeterministicDeployment {
                 maxDelayMessageQueue: uint24(RELAY_MESSAGE_DEADLINE_SEC)
             })
         );
+    }
+
+    function deployL1ScrollOwner() internal {
+        L1_SCROLL_OWNER_ADDR = deploy("L1_SCROLL_OWNER", type(ScrollOwner).creationCode);
+    }
+
+    function deployL2ScrollOwner() internal {
+        L2_SCROLL_OWNER_ADDR = deploy("L2_SCROLL_OWNER", type(ScrollOwner).creationCode);
+    }
+
+    function initializeL1ScrollOwner() private {
+        ScrollOwner(payable(L1_SCROLL_OWNER_ADDR)).initialize(L1_SCROLL_MULTISIG_ADDR);
+    }
+
+    function initializeL2ScrollOwner() private {
+        ScrollOwner(payable(L2_SCROLL_OWNER_ADDR)).initialize(L2_SCROLL_MULTISIG_ADDR);
     }
 }

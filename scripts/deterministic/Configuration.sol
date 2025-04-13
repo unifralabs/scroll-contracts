@@ -60,6 +60,36 @@ abstract contract Configuration is Script {
 
     address internal L2GETH_SIGNER_ADDRESS;
 
+    //shu@unifra.io
+    address internal L1_SCROLL_MULTISIG_ADDR;
+    address internal L2_SCROLL_MULTISIG_ADDR;
+    address internal L1_SECURITY_COUNCIL_ADDR;
+    address internal L2_SECURITY_COUNCIL_ADDR;
+    address internal L1_EMERGENCY_MULTISIG_ADDR;
+    address internal L2_EMERGENCY_MULTISIG_ADDR;
+
+    address internal L1_SCROLL_OWNER_ADDR;
+    address internal L1_1D_TIMELOCK_ADDR;
+    address internal L1_7D_TIMELOCK_ADDR;
+    address internal L1_14D_TIMELOCK_ADDR;
+
+    address internal L2_SCROLL_OWNER_ADDR;
+    address internal L2_1D_TIMELOCK_ADDR;
+    address internal L2_7D_TIMELOCK_ADDR;
+    address internal L2_14D_TIMELOCK_ADDR;
+    // contracts
+    address internal L1_USDC_GATEWAY_PROXY_ADDR;
+    address internal L2_USDC_GATEWAY_PROXY_ADDR;
+    address internal L1_DAI_GATEWAY_PROXY_ADDR;
+    address internal L2_DAI_GATEWAY_PROXY_ADDR;
+
+    address internal L1_LIDO_GATEWAY_PROXY_ADDR;
+    address internal L2_LIDO_GATEWAY_PROXY_ADDR;
+
+    address internal L2_GAS_PRICE_ORACLE_PROXY_ADDR;
+    address internal L2_GAS_PRICE_ORACLE_IMPLEMENTATION_ADDR;
+    //shu@unifra.io
+
     // db
     string internal ROLLUP_EXPLORER_BACKEND_DB_CONNECTION_STRING;
 
@@ -138,6 +168,33 @@ abstract contract Configuration is Script {
         L2_GAS_ORACLE_SENDER_ADDR = cfg.readAddress(".accounts.L2_GAS_ORACLE_SENDER_ADDR");
 
         OWNER_ADDR = cfg.readAddress(".accounts.OWNER_ADDR");
+
+        //shu@unifra.io
+        L1_SCROLL_MULTISIG_ADDR = cfg.readAddress(".accounts.L1_SCROLL_MULTISIG_ADDR");
+        L2_SCROLL_MULTISIG_ADDR = cfg.readAddress(".accounts.L2_SCROLL_MULTISIG_ADDR");
+        L1_SECURITY_COUNCIL_ADDR = cfg.readAddress(".accounts.L1_SECURITY_COUNCIL_ADDR");
+        L2_SECURITY_COUNCIL_ADDR = cfg.readAddress(".accounts.L2_SECURITY_COUNCIL_ADDR");
+        L1_EMERGENCY_MULTISIG_ADDR = cfg.readAddress(".accounts.L1_EMERGENCY_MULTISIG_ADDR");
+        L2_EMERGENCY_MULTISIG_ADDR = cfg.readAddress(".accounts.L2_EMERGENCY_MULTISIG_ADDR");
+        L1_SCROLL_OWNER_ADDR = cfg.readAddress(".accounts.L1_SCROLL_OWNER_ADDR");
+        L1_1D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L1_1D_TIMELOCK_ADDR");
+        L1_7D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L1_7D_TIMELOCK_ADDR");
+        L1_14D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L1_14D_TIMELOCK_ADDR");
+        L2_SCROLL_OWNER_ADDR = cfg.readAddress(".accounts.L2_SCROLL_OWNER_ADDR");
+        L2_1D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L2_1D_TIMELOCK_ADDR");
+        L2_7D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L2_7D_TIMELOCK_ADDR");
+        L2_14D_TIMELOCK_ADDR = cfg.readAddress(".accounts.L2_14D_TIMELOCK_ADDR");
+
+        //contracts
+        L1_USDC_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L1_USDC_GATEWAY_PROXY_ADDR");
+        L2_USDC_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L2_USDC_GATEWAY_PROXY_ADDR");
+        L1_DAI_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L1_DAI_GATEWAY_PROXY_ADDR");
+        L2_DAI_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L2_DAI_GATEWAY_PROXY_ADDR");
+        L1_LIDO_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L1_LIDO_GATEWAY_PROXY_ADDR");
+        L2_LIDO_GATEWAY_PROXY_ADDR = cfg.readAddress(".contracts.L2_LIDO_GATEWAY_PROXY_ADDR");
+        L2_GAS_PRICE_ORACLE_PROXY_ADDR = cfg.readAddress(".contracts.L2_GAS_PRICE_ORACLE_PROXY_ADDR");
+        L2_GAS_PRICE_ORACLE_IMPLEMENTATION_ADDR = cfg.readAddress(".contracts.L2_GAS_PRICE_ORACLE_IMPLEMENTATION_ADDR");
+        //shu@unifra.io
 
         L2GETH_SIGNER_ADDRESS = cfg.readAddress(".sequencer.L2GETH_SIGNER_ADDRESS");
 

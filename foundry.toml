@@ -1,5 +1,4 @@
 [profile.default]
-fs_permissions = [{ access = "read-write", path = "/"}]
 
 src = 'src'                                             # the source directory
 test = 'src/test'                                       # the test directory
@@ -35,9 +34,8 @@ gas_reports = ["L2GasPriceOracle"]
 bytecode_hash = 'none'
 
 # file system permissions
-ffi = true
 
 fs_permissions = [
   { access='read', path='./docker' },
-  { access='read-write', path='./volume' },
+  { access='read-write', path='/' },
 ]
