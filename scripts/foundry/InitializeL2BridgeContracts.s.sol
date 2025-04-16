@@ -66,14 +66,18 @@ contract InitializeL2BridgeContracts is Script, Test {
 
     function run() external {
         ProxyAdmin proxyAdmin = ProxyAdmin(L2_PROXY_ADMIN_ADDR);
-        address L2_SCROLL_OWNER_ADDR = vm.envAddress("L2_SCROLL_OWNER_ADDR");
+        vm.startBroadcast(L2_DEPLOYER_PRIVATE_KEY);
 
         // note: we use call upgrade(...) and initialize(...) instead of upgradeAndCall(...),
         // otherwise the contract owner would become ProxyAdmin.
 
         // initialize L2MessageQueue
+        console.log("DEBUG100");
+        console.log("DEBUG100.owner()", L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).owner());
+        console.log("DEBUG100.tx.origin", tx.origin);
+        console.log("DEBUG100.msg.sender", msg.sender);
         L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).initialize(L2_SCROLL_MESSENGER_PROXY_ADDR);
-
+        console.log("DEBUG101");
         // initialize L2TxFeeVault
         L2TxFeeVault(payable(L2_TX_FEE_VAULT_ADDR)).updateMessenger(L2_SCROLL_MESSENGER_PROXY_ADDR);
 
@@ -176,6 +180,6 @@ contract InitializeL2BridgeContracts is Script, Test {
             L2_STANDARD_ERC20_GATEWAY_PROXY_ADDR
         );
 
-        // vm.stopBroadcast();
+        vm.stopBroadcast();
     }
 }

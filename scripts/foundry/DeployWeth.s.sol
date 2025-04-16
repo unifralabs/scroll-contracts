@@ -24,6 +24,12 @@ contract DeployWeth is MyScript {
                 uint64 originalNonce = vm.getNonce(txOrigin);
                 WrappedEther weth = new WrappedEther();
                 vm.etch(L1_WETH_ADDR, address(weth).code);
+                for (uint256 i = 0; i <= 8; i++) {
+                    bytes32 val = vm.load(address(weth), bytes32(i));
+                    if (val != bytes32(0)) {
+                        vm.store(L1_WETH_ADDR, bytes32(i), val);
+                    }
+                }
                 vm.setNonce(txOrigin, originalNonce);
             }
         }

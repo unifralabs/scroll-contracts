@@ -29,3 +29,7 @@ block_difficulty = 0                                          # the value of `bl
 
 gas_reports = ["L2GasPriceOracle"]
 env_file=".env"
+
+[profile.script]
+src = 'scripts'
+ignored_error_codes = ["5574"]

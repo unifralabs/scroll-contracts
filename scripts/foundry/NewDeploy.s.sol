@@ -92,16 +92,14 @@ contract NewDeploy is MyScript {
         vm.selectFork(l1Fork);
         new InitializeL1ScrollOwner().run();
 
-        console.log("== Initializing L2 Scroll Owner ==");
-        vm.selectFork(l2Fork);
-        address L2_SCROLL_OWNER_ADDR = vm.envAddress("L2_SCROLL_OWNER_ADDR");
-
-        new InitializeL2ScrollOwner().run();
-
         console.log("== Initializing L2 Bridge Contracts ==");
         vm.selectFork(l2Fork);
         new InitializeL2BridgeContracts().run();
         console.log("=== Deployment Process Completed ===");
+
+        console.log("== Initializing L2 Scroll Owner ==");
+        vm.selectFork(l2Fork);
+        new InitializeL2ScrollOwner().run();
     }
 
     address L2_WETH_ADDR = vm.envAddress("L2_WETH_ADDR");
@@ -122,6 +120,12 @@ contract NewDeploy is MyScript {
                 uint64 originalNonce = vm.getNonce(txOrigin);
                 WrappedEther weth = new WrappedEther();
                 vm.etch(L2_WETH_ADDR, address(weth).code);
+                for (uint256 i = 0; i <= 8; i++) {
+                    bytes32 val = vm.load(address(weth), bytes32(i));
+                    if (val != bytes32(0)) {
+                        vm.store(L2_WETH_ADDR, bytes32(i), val);
+                    }
+                }
                 vm.setNonce(txOrigin, originalNonce);
             }
         }

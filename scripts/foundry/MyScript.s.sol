@@ -7,6 +7,10 @@ import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 
 contract MyScript is Script {
+    constructor() {
+        console.log("DEBUG1");
+    }
+
     function logAddress(string memory name, address addr) internal {
         console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
         vm.setEnv(name, vm.toString(address(addr)));
