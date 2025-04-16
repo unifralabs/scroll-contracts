@@ -3,7 +3,7 @@ pragma solidity =0.8.24;
 
 // solhint-disable no-console
 
-import {Script} from "forge-std/Script.sol";
+import {MyScript} from "./MyScript.s.sol";
 import {console} from "forge-std/console.sol";
 
 import {Fallback} from "../../src/misc/Fallback.sol";
@@ -11,7 +11,7 @@ import {Fallback} from "../../src/misc/Fallback.sol";
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract DeployFallbackContracts is Script {
+contract DeployFallbackContracts is MyScript {
     uint256 DEPLOYER_PRIVATE_KEY = vm.envUint("DEPLOYER_PRIVATE_KEY");
     uint256 NUM_CONTRACTS = vm.envUint("NUM_CONTRACTS");
 
@@ -24,9 +24,5 @@ contract DeployFallbackContracts is Script {
         }
 
         vm.stopBroadcast();
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

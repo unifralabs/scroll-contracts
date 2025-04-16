@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.8.24;
 
-import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
+import {MyScript} from "./MyScript.s.sol";
 
 import {WrappedEther} from "../../src/L2/predeploys/WrappedEther.sol";
 
-contract DeployWeth is Script {
+contract DeployWeth is MyScript {
     address L1_WETH_ADDR = vm.envAddress("L1_WETH_ADDR");
     address L2_WETH_ADDR = vm.envAddress("L2_WETH_ADDR");
 
@@ -18,13 +17,19 @@ contract DeployWeth is Script {
             WrappedEther weth = new WrappedEther();
             L1_WETH_ADDR = address(weth);
             vm.stopBroadcast();
+        } else {
+            bool isSimulation = vm.envBool("IS_SIMULATION");
+            if (isSimulation) {
+                (, address msgSender, ) = vm.readCallers();
+                uint64 originalNonce = vm.getNonce(msgSender);
+                vm.stopBroadcast();
+                WrappedEther weth = new WrappedEther();
+                vm.etch(L1_WETH_ADDR, address(weth).code);
+
+                vm.setNonce(msgSender, originalNonce);
+                vm.startBroadcast(msgSender);
+            }
         }
-
         logAddress("L1_WETH_ADDR", L1_WETH_ADDR);
-        logAddress("L2_WETH_ADDR", L2_WETH_ADDR);
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

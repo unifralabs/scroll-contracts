@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.8.24;
 
-import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
-
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 
 import {ScrollOwner} from "../../src/misc/ScrollOwner.sol";
+import {MyScript} from "./MyScript.s.sol";
 
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract DeployL1ScrollOwner is Script {
+contract DeployL1ScrollOwner is MyScript {
     string NETWORK = vm.envString("NETWORK");
 
     uint256 L1_DEPLOYER_PRIVATE_KEY = vm.envUint("L1_DEPLOYER_PRIVATE_KEY");
@@ -58,9 +56,5 @@ contract DeployL1ScrollOwner is Script {
         TimelockController timelock = new TimelockController(delay, proposers, executors, SECURITY_COUNCIL_ADDR);
 
         logAddress(string(abi.encodePacked("L1_", label, "_TIMELOCK_ADDR")), address(timelock));
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

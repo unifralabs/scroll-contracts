@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.10;
 
-import {Script} from "forge-std/Script.sol";
+import {MyScript} from "./MyScript.s.sol";
 import {console} from "forge-std/console.sol";
 
 import {L1LidoGateway} from "../../src/lido/L1LidoGateway.sol";
@@ -10,7 +10,7 @@ import {L2LidoGateway} from "../../src/lido/L2LidoGateway.sol";
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract DeployLidoGateway is Script {
+contract DeployLidoGateway is MyScript {
     string NETWORK = vm.envString("NETWORK");
 
     uint256 L1_DEPLOYER_PRIVATE_KEY = vm.envUint("L1_DEPLOYER_PRIVATE_KEY");
@@ -55,9 +55,5 @@ contract DeployLidoGateway is Script {
         }
 
         vm.stopBroadcast();
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

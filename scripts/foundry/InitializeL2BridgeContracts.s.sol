@@ -2,9 +2,10 @@
 pragma solidity =0.8.24;
 
 import {Script} from "forge-std/Script.sol";
-
+import {console} from "forge-std/console.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {ITransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {Test, stdError} from "forge-std/Test.sol";
 
 import {L2ScrollMessenger} from "../../src/L2/L2ScrollMessenger.sol";
 import {L2CustomERC20Gateway} from "../../src/L2/gateways/L2CustomERC20Gateway.sol";
@@ -24,7 +25,7 @@ import {ScrollStandardERC20Factory} from "../../src/libraries/token/ScrollStanda
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract InitializeL2BridgeContracts is Script {
+contract InitializeL2BridgeContracts is Script, Test {
     uint256 deployerPrivateKey = vm.envUint("L2_DEPLOYER_PRIVATE_KEY");
 
     address L2_WETH_ADDR = vm.envAddress("L2_WETH_ADDR");
@@ -71,11 +72,16 @@ contract InitializeL2BridgeContracts is Script {
         // otherwise the contract owner would become ProxyAdmin.
 
         // initialize L2MessageQueue
+
+        address messenger = L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).messenger();
+        console.log("L2MessageQueue messenger:", messenger);
         L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).initialize(L2_SCROLL_MESSENGER_PROXY_ADDR);
+        console.log("L2MessageQueue messenger:", messenger);
+        console.log("L2MessageQueue initialization successful");
 
         // initialize L2TxFeeVault
         L2TxFeeVault(payable(L2_TX_FEE_VAULT_ADDR)).updateMessenger(L2_SCROLL_MESSENGER_PROXY_ADDR);
-
+        console.log("L2TxFeeVault initialization successful");
         // initialize L1GasPriceOracle
         L1GasPriceOracle(L1_GAS_PRICE_ORACLE_ADDR).updateWhitelist(L2_WHITELIST_ADDR);
 

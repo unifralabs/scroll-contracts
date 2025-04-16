@@ -5,6 +5,7 @@ pragma solidity =0.8.24;
 
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
+import {MyScript} from "./MyScript.s.sol";
 
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -31,7 +32,7 @@ import {ZkEvmVerifierPostEuclid} from "../../src/libraries/verifier/ZkEvmVerifie
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract DeployL1BridgeContracts is Script {
+contract DeployL1BridgeContracts is MyScript {
     uint256 L1_DEPLOYER_PRIVATE_KEY = vm.envUint("L1_DEPLOYER_PRIVATE_KEY");
 
     uint64 CHAIN_ID_L2 = uint64(vm.envUint("CHAIN_ID_L2"));
@@ -254,9 +255,5 @@ contract DeployL1BridgeContracts is Script {
         logAddress("L1_ENFORCED_TX_GATEWAY_IMPLEMENTATION_ADDR", address(impl));
         logAddress("L1_ENFORCED_TX_GATEWAY_PROXY_ADDR", address(proxy));
         enforcedTxGateway = EnforcedTxGateway(address(proxy));
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

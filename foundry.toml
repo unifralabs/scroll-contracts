@@ -28,3 +28,4 @@ block_timestamp = 0                                           # the value of `bl
 block_difficulty = 0                                          # the value of `block.difficulty` in tests
 
 gas_reports = ["L2GasPriceOracle"]
+env_file=".env"

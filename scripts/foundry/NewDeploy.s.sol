@@ -23,46 +23,98 @@ import {InitializeL1ScrollOwner} from "./InitializeL1ScrollOwner.s.sol";
 import {InitializeL2BridgeContracts} from "./InitializeL2BridgeContracts.s.sol";
 import {InitializeL2ScrollOwner} from "./InitializeL2ScrollOwner.s.sol";
 
-contract NewDeploy is Script {
+import {WrappedEther} from "../../src/L2/predeploys/WrappedEther.sol";
+import {MyScript} from "./MyScript.s.sol";
+
+contract NewDeploy is MyScript {
     function run() external {
+        uint256 l1Fork = vm.createSelectFork("L1");
+        uint256 l2Fork = vm.createSelectFork("L2");
+
         console.log("=== Start Unified Deployment Process ===");
 
-        // 1. Deploy L2 & L1 Scroll Owner
-        console.log("== Deploying Scroll Owners ==");
+        console.log("== Deploying L2 Scroll Owner ==");
+        vm.selectFork(l2Fork);
         new DeployL2ScrollOwner().run();
+
+        console.log("== Deploying L1 Scroll Owner ==");
+        vm.selectFork(l1Fork);
         new DeployL1ScrollOwner().run();
 
-        // 2. Deploy L1 Fallback Contracts
-        console.log("== Deploying Fallback Contracts ==");
-        new DeployFallbackContracts().run();
+        // TODO: don't know if we need this
+        // console.log("== Deploying L1 Fallback Contracts ==");
+        // vm.selectFork(l1Fork);
+        // new DeployFallbackContracts().run();
 
-        // 3. Deploy Bridge Proxy Placeholders
-        console.log("== Deploying Bridge Proxy Placeholders ==");
+        console.log("== Deploying L2 Bridge Proxy Placeholders ==");
+        vm.selectFork(l2Fork);
         new DeployL2BridgeProxyPlaceholder().run();
+
+        console.log("== Deploying L1 Bridge Proxy Placeholders ==");
+        vm.selectFork(l1Fork);
         new DeployL1BridgeProxyPlaceholder().run();
 
-        // 4. Deploy WETH on L2 & L1
-        console.log("== Deploying WETH Contracts ==");
-        // new DeployL2Weth().run();
+        console.log("== Deploying L1 WETH Contracts ==");
+        vm.selectFork(l1Fork);
         new DeployWeth().run();
 
-        // 5. Deploy Bridge Contracts
-        console.log("== Deploying Bridge Contracts ==");
+        console.log("== Deploying L2 WETH Contracts ==");
+        vm.selectFork(l2Fork);
+        DeployL2WETH();
+
+        console.log("== Deploying L2 Bridge Contracts ==");
+        vm.selectFork(l2Fork);
         new DeployL2BridgeContracts().run();
+
+        console.log("== Deploying L1 Bridge Contracts ==");
+        vm.selectFork(l1Fork);
         new DeployL1BridgeContracts().run();
 
-        // 6. Deploy Lido Gateway & Commitment Verifier
-        console.log("== Deploying Lido Gateway & Verifier ==");
+        console.log("== Deploying L2 Lido Gateway & Verifier ==");
+        vm.selectFork(l2Fork);
         new DeployLidoGateway().run();
+
+        console.log("== Deploying Scroll Chain Commitment Verifier ==");
+        vm.selectFork(l1Fork);
         new DeployScrollChainCommitmentVerifier().run();
 
-        // 7. Initialize all contracts
         console.log("== Initializing Contracts ==");
+        vm.selectFork(l1Fork);
         new InitializeL1BridgeContracts().run();
         new InitializeL1ScrollOwner().run();
+
+        console.log("== Initializing L2 Contracts ==");
+        vm.selectFork(l2Fork);
         new InitializeL2BridgeContracts().run();
         new InitializeL2ScrollOwner().run();
 
         console.log("=== Deployment Process Completed ===");
+    }
+
+    address L2_WETH_ADDR = vm.envAddress("L2_WETH_ADDR");
+
+    function DeployL2WETH() internal {
+        // if L2_WETH_ADDR is not set, deploy a new WETH
+        uint256 L2_WETH_DEPLOYER_PRIVATE_KEY = vm.envUint("L2_WETH_DEPLOYER_PRIVATE_KEY");
+        if (L2_WETH_ADDR == address(0)) {
+            vm.startBroadcast(L2_WETH_DEPLOYER_PRIVATE_KEY);
+            WrappedEther weth = new WrappedEther();
+            L2_WETH_ADDR = address(weth);
+            vm.stopBroadcast();
+        } else {
+            // if L2_WETH_ADDR is set, simulate the deployment
+            bool isSimulation = vm.envBool("IS_SIMULATION");
+            if (isSimulation) {
+                (, address msgSender, ) = vm.readCallers();
+                uint64 originalNonce = vm.getNonce(msgSender);
+                vm.stopBroadcast();
+                WrappedEther weth = new WrappedEther();
+                vm.etch(L2_WETH_ADDR, address(weth).code);
+
+                vm.setNonce(msgSender, originalNonce);
+                vm.startBroadcast(msgSender);
+            }
+        }
+        logAddress("L2_WETH_ADDR", L2_WETH_ADDR);
     }
 }

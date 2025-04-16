@@ -2,7 +2,7 @@
 pragma solidity =0.8.24;
 
 import {Script} from "forge-std/Script.sol";
-
+import {console} from "forge-std/console.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
@@ -111,14 +111,31 @@ contract InitializeL1ScrollOwner is Script {
         Ownable(L1_MULTIPLE_VERSION_ROLLUP_VERIFIER_ADDR).transferOwnership(address(owner));
         Ownable(L1_GATEWAY_ROUTER_PROXY_ADDR).transferOwnership(address(owner));
         Ownable(L1_CUSTOM_ERC20_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_DAI_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_LIDO_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_ETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_STANDARD_ERC20_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_USDC_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_WETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_ERC721_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        Ownable(L1_ERC1155_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+
+        if (L1_DAI_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_DAI_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_LIDO_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_LIDO_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_ETH_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_ETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_STANDARD_ERC20_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_STANDARD_ERC20_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_USDC_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_USDC_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_WETH_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_WETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_ERC721_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_ERC721_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
+        if (L1_ERC1155_GATEWAY_PROXY_ADDR != address(0)) {
+            Ownable(L1_ERC1155_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
+        }
     }
 
     function grantRoles() internal {

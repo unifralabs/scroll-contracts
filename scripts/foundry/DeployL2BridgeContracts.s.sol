@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.8.24;
-
-// solhint-disable no-console
-
-import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
+import {MyScript} from "./MyScript.s.sol";
 
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -28,7 +24,7 @@ import {ScrollStandardERC20Factory} from "../../src/libraries/token/ScrollStanda
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
-contract DeployL2BridgeContracts is Script {
+contract DeployL2BridgeContracts is MyScript {
     uint256 L2_DEPLOYER_PRIVATE_KEY = vm.envUint("L2_DEPLOYER_PRIVATE_KEY");
 
     address L2_PROXY_ADMIN_ADDR = vm.envAddress("L2_PROXY_ADMIN_ADDR");
@@ -85,52 +81,84 @@ contract DeployL2BridgeContracts is Script {
     }
 
     function deployL1GasPriceOracle() internal {
+        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR != address(0)) {
+            (, address msgSender, ) = vm.readCallers();
+            uint64 originNonce = vm.getNonce(msgSender);
+            vm.stopBroadcast();
+            L1GasPriceOracle tmp = new L1GasPriceOracle(owner);
+            vm.etch(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR, address(tmp).code);
+
+            vm.setNonce(msgSender, originNonce);
+            vm.startBroadcast(msgSender);
             oracle = L1GasPriceOracle(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR);
+
+            // log the address of the deployed contract
             logAddress("L1_GAS_PRICE_ORACLE_ADDR", address(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR));
             return;
         }
 
-        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         oracle = new L1GasPriceOracle(owner);
 
         logAddress("L1_GAS_PRICE_ORACLE_ADDR", address(oracle));
     }
 
     function deployL2MessageQueue() internal {
+        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_MESSAGE_QUEUE_PREDEPLOY_ADDR != address(0)) {
+            (, address msgSender, ) = vm.readCallers();
+            uint64 originNonce = vm.getNonce(msgSender);
+            vm.stopBroadcast();
+            L2MessageQueue tmp = new L2MessageQueue(owner);
+            vm.etch(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, address(tmp).code);
+            vm.setNonce(msgSender, originNonce);
+            vm.startBroadcast(msgSender);
             queue = L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR);
+
             logAddress("L2_MESSAGE_QUEUE_ADDR", address(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR));
             return;
         }
 
-        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         queue = new L2MessageQueue(owner);
 
         logAddress("L2_MESSAGE_QUEUE_ADDR", address(queue));
     }
 
     function deployTxFeeVault() internal {
+        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_TX_FEE_VAULT_PREDEPLOY_ADDR != address(0)) {
+            (, address msgSender, ) = vm.readCallers();
+            uint64 originNonce = vm.getNonce(msgSender);
+            vm.stopBroadcast();
+            L2TxFeeVault tmp = new L2TxFeeVault(owner, L1_TX_FEE_RECIPIENT_ADDR, 10 ether);
+            vm.etch(L2_TX_FEE_VAULT_PREDEPLOY_ADDR, address(tmp).code);
+            vm.setNonce(msgSender, originNonce);
+            vm.startBroadcast(msgSender);
+
             logAddress("L2_TX_FEE_VAULT_ADDR", address(L2_TX_FEE_VAULT_PREDEPLOY_ADDR));
             return;
         }
-
-        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         L2TxFeeVault feeVault = new L2TxFeeVault(address(owner), L1_TX_FEE_RECIPIENT_ADDR, 10 ether);
 
         logAddress("L2_TX_FEE_VAULT_ADDR", address(feeVault));
     }
 
     function deployL2Whitelist() internal {
+        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_WHITELIST_PREDEPLOY_ADDR != address(0)) {
+            (, address msgSender, ) = vm.readCallers();
+            uint64 originNonce = vm.getNonce(msgSender);
+            vm.stopBroadcast();
+            Whitelist tmp = new Whitelist(owner);
+            vm.etch(L2_WHITELIST_PREDEPLOY_ADDR, address(tmp).code);
+            vm.setNonce(msgSender, originNonce);
+            vm.startBroadcast(msgSender);
+
             logAddress("L2_WHITELIST_ADDR", address(L2_WHITELIST_PREDEPLOY_ADDR));
             return;
         }
 
-        address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         Whitelist whitelist = new Whitelist(owner);
-
         logAddress("L2_WHITELIST_ADDR", address(whitelist));
     }
 
@@ -214,9 +242,5 @@ contract DeployL2BridgeContracts is Script {
     function deployL2ERC1155Gateway() internal {
         L2ERC1155Gateway impl = new L2ERC1155Gateway(L1_ERC1155_GATEWAY_PROXY_ADDR, L2_SCROLL_MESSENGER_PROXY_ADDR);
         logAddress("L2_ERC1155_GATEWAY_IMPLEMENTATION_ADDR", address(impl));
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }

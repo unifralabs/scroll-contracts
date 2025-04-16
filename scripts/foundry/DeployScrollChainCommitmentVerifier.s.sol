@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.8.24;
 
-import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
-
+import {MyScript} from "./MyScript.s.sol";
 import {ScrollChainCommitmentVerifier} from "../../src/L1/rollup/ScrollChainCommitmentVerifier.sol";
 
-contract DeployScrollChainCommitmentVerifier is Script {
+contract DeployScrollChainCommitmentVerifier is MyScript {
     uint256 L1_DEPLOYER_PRIVATE_KEY = vm.envUint("L1_DEPLOYER_PRIVATE_KEY");
 
     address L1_SCROLL_CHAIN_PROXY_ADDR = vm.envAddress("L1_SCROLL_CHAIN_PROXY_ADDR");
@@ -28,9 +26,5 @@ contract DeployScrollChainCommitmentVerifier is Script {
         );
 
         logAddress("L1_SCROLL_CHAIN_COMMITMENT_VERIFIER", address(verifier));
-    }
-
-    function logAddress(string memory name, address addr) internal view {
-        console.log(string(abi.encodePacked(name, "=", vm.toString(address(addr)))));
     }
 }
