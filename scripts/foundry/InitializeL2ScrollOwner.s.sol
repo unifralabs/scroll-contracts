@@ -19,6 +19,7 @@ import {L1GasPriceOracle} from "../../src/L2/predeploys/L1GasPriceOracle.sol";
 import {L2TxFeeVault} from "../../src/L2/predeploys/L2TxFeeVault.sol";
 import {Whitelist} from "../../src/L2/predeploys/Whitelist.sol";
 import {ScrollOwner} from "../../src/misc/ScrollOwner.sol";
+import {console} from "forge-std/console.sol";
 
 // solhint-disable max-states-count
 // solhint-disable state-visibility
@@ -72,19 +73,29 @@ contract InitializeL2ScrollOwner is Script {
         owner = ScrollOwner(payable(L2_SCROLL_OWNER_ADDR));
 
         // @note we don't config 14D access, since the default admin is a 14D timelock which can access all methods.
+
         configProxyAdmin();
+
         configL1GasPriceOracle();
+
         configL2TxFeeVault();
+
         configL2Whitelist();
+
         configL2ScrollMessenger();
+
         configL2GatewayRouter();
+
         configL2CustomERC20Gateway();
+
         configL2ERC721Gateway();
+
         configL2ERC1155Gateway();
 
         configL2USDCGateway();
 
         grantRoles();
+
         transferOwnership();
 
         vm.stopBroadcast();
@@ -92,8 +103,14 @@ contract InitializeL2ScrollOwner is Script {
 
     function transferOwnership() internal {
         Ownable(L2_PROXY_ADMIN_ADDR).transferOwnership(address(owner));
+
+        console.log("DEBUG14 Ownable(L2_MESSAGE_QUEUE_ADDR).owner()", Ownable(L2_MESSAGE_QUEUE_ADDR).owner());
+        console.log("DEBUG14 msg.sender", msg.sender);
+        console.log("DEBUG14 tx.origin", tx.origin);
+
         Ownable(L2_MESSAGE_QUEUE_ADDR).transferOwnership(address(owner));
         Ownable(L1_GAS_PRICE_ORACLE_ADDR).transferOwnership(address(owner));
+
         Ownable(L2_TX_FEE_VAULT_ADDR).transferOwnership(address(owner));
         Ownable(L2_WHITELIST_ADDR).transferOwnership(address(owner));
         Ownable(L2_SCROLL_MESSENGER_PROXY_ADDR).transferOwnership(address(owner));

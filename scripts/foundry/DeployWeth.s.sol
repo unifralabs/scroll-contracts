@@ -18,16 +18,13 @@ contract DeployWeth is MyScript {
             L1_WETH_ADDR = address(weth);
             vm.stopBroadcast();
         } else {
-            bool isSimulation = vm.envBool("IS_SIMULATION");
-            if (isSimulation) {
-                (, address msgSender, ) = vm.readCallers();
-                uint64 originalNonce = vm.getNonce(msgSender);
-                vm.stopBroadcast();
+            uint256 isSimulation = vm.envUint("IS_SIMULATION");
+            if (isSimulation == 1) {
+                (, , address txOrigin) = vm.readCallers();
+                uint64 originalNonce = vm.getNonce(txOrigin);
                 WrappedEther weth = new WrappedEther();
                 vm.etch(L1_WETH_ADDR, address(weth).code);
-
-                vm.setNonce(msgSender, originalNonce);
-                vm.startBroadcast(msgSender);
+                vm.setNonce(txOrigin, originalNonce);
             }
         }
         logAddress("L1_WETH_ADDR", L1_WETH_ADDR);

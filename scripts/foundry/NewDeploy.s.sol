@@ -27,19 +27,25 @@ import {WrappedEther} from "../../src/L2/predeploys/WrappedEther.sol";
 import {MyScript} from "./MyScript.s.sol";
 
 contract NewDeploy is MyScript {
-    function run() external {
-        uint256 l1Fork = vm.createSelectFork("L1");
-        uint256 l2Fork = vm.createSelectFork("L2");
+    function run(uint64 isSimulation) external {
+        //EXTERNAL_RPC_URI_L1 = "http://l1-devnet.scrollsdk"
+        //EXTERNAL_RPC_URI_L2 = "http://l2-rpc.scrollsdk"
+        vm.setEnv("IS_SIMULATION", vm.toString(isSimulation));
+
+        uint256 l1Fork = vm.createSelectFork("http://l1-devnet.scrollsdk");
+        uint256 l2Fork = vm.createSelectFork("http://l2-rpc.scrollsdk");
 
         console.log("=== Start Unified Deployment Process ===");
 
         console.log("== Deploying L2 Scroll Owner ==");
         vm.selectFork(l2Fork);
+        console.log("L2 msgSender", msg.sender);
         new DeployL2ScrollOwner().run();
 
         console.log("== Deploying L1 Scroll Owner ==");
         vm.selectFork(l1Fork);
         new DeployL1ScrollOwner().run();
+        console.log("L1 msgSender", msg.sender);
 
         // TODO: don't know if we need this
         // console.log("== Deploying L1 Fallback Contracts ==");
@@ -81,13 +87,20 @@ contract NewDeploy is MyScript {
         console.log("== Initializing Contracts ==");
         vm.selectFork(l1Fork);
         new InitializeL1BridgeContracts().run();
+
+        console.log("== Initializing L1 Scroll Owner ==");
+        vm.selectFork(l1Fork);
         new InitializeL1ScrollOwner().run();
 
-        console.log("== Initializing L2 Contracts ==");
+        console.log("== Initializing L2 Scroll Owner ==");
         vm.selectFork(l2Fork);
-        new InitializeL2BridgeContracts().run();
+        address L2_SCROLL_OWNER_ADDR = vm.envAddress("L2_SCROLL_OWNER_ADDR");
+
         new InitializeL2ScrollOwner().run();
 
+        console.log("== Initializing L2 Bridge Contracts ==");
+        vm.selectFork(l2Fork);
+        new InitializeL2BridgeContracts().run();
         console.log("=== Deployment Process Completed ===");
     }
 
@@ -95,24 +108,21 @@ contract NewDeploy is MyScript {
 
     function DeployL2WETH() internal {
         // if L2_WETH_ADDR is not set, deploy a new WETH
-        uint256 L2_WETH_DEPLOYER_PRIVATE_KEY = vm.envUint("L2_WETH_DEPLOYER_PRIVATE_KEY");
+        uint256 L2_DEPLOYER_PRIVATE_KEY = vm.envUint("L2_DEPLOYER_PRIVATE_KEY");
         if (L2_WETH_ADDR == address(0)) {
-            vm.startBroadcast(L2_WETH_DEPLOYER_PRIVATE_KEY);
+            vm.startBroadcast(L2_DEPLOYER_PRIVATE_KEY);
             WrappedEther weth = new WrappedEther();
             L2_WETH_ADDR = address(weth);
             vm.stopBroadcast();
         } else {
             // if L2_WETH_ADDR is set, simulate the deployment
-            bool isSimulation = vm.envBool("IS_SIMULATION");
-            if (isSimulation) {
-                (, address msgSender, ) = vm.readCallers();
-                uint64 originalNonce = vm.getNonce(msgSender);
-                vm.stopBroadcast();
+            uint256 isSimulation = vm.envUint("IS_SIMULATION");
+            if (isSimulation == 1) {
+                (, , address txOrigin) = vm.readCallers();
+                uint64 originalNonce = vm.getNonce(txOrigin);
                 WrappedEther weth = new WrappedEther();
                 vm.etch(L2_WETH_ADDR, address(weth).code);
-
-                vm.setNonce(msgSender, originalNonce);
-                vm.startBroadcast(msgSender);
+                vm.setNonce(txOrigin, originalNonce);
             }
         }
         logAddress("L2_WETH_ADDR", L2_WETH_ADDR);

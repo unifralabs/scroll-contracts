@@ -20,13 +20,14 @@ import {L2TxFeeVault} from "../../src/L2/predeploys/L2TxFeeVault.sol";
 import {L1GasPriceOracle} from "../../src/L2/predeploys/L1GasPriceOracle.sol";
 import {Whitelist} from "../../src/L2/predeploys/Whitelist.sol";
 import {ScrollStandardERC20Factory} from "../../src/libraries/token/ScrollStandardERC20Factory.sol";
+import {ScrollOwner} from "../../src/misc/ScrollOwner.sol";
 
 // solhint-disable max-states-count
 // solhint-disable state-visibility
 // solhint-disable var-name-mixedcase
 
 contract InitializeL2BridgeContracts is Script, Test {
-    uint256 deployerPrivateKey = vm.envUint("L2_DEPLOYER_PRIVATE_KEY");
+    uint256 L2_DEPLOYER_PRIVATE_KEY = vm.envUint("L2_DEPLOYER_PRIVATE_KEY");
 
     address L2_WETH_ADDR = vm.envAddress("L2_WETH_ADDR");
     address L2_PROXY_ADMIN_ADDR = vm.envAddress("L2_PROXY_ADMIN_ADDR");
@@ -65,23 +66,17 @@ contract InitializeL2BridgeContracts is Script, Test {
 
     function run() external {
         ProxyAdmin proxyAdmin = ProxyAdmin(L2_PROXY_ADMIN_ADDR);
-
-        vm.startBroadcast(deployerPrivateKey);
+        address L2_SCROLL_OWNER_ADDR = vm.envAddress("L2_SCROLL_OWNER_ADDR");
 
         // note: we use call upgrade(...) and initialize(...) instead of upgradeAndCall(...),
         // otherwise the contract owner would become ProxyAdmin.
 
         // initialize L2MessageQueue
-
-        address messenger = L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).messenger();
-        console.log("L2MessageQueue messenger:", messenger);
         L2MessageQueue(L2_MESSAGE_QUEUE_ADDR).initialize(L2_SCROLL_MESSENGER_PROXY_ADDR);
-        console.log("L2MessageQueue messenger:", messenger);
-        console.log("L2MessageQueue initialization successful");
 
         // initialize L2TxFeeVault
         L2TxFeeVault(payable(L2_TX_FEE_VAULT_ADDR)).updateMessenger(L2_SCROLL_MESSENGER_PROXY_ADDR);
-        console.log("L2TxFeeVault initialization successful");
+
         // initialize L1GasPriceOracle
         L1GasPriceOracle(L1_GAS_PRICE_ORACLE_ADDR).updateWhitelist(L2_WHITELIST_ADDR);
 
@@ -181,6 +176,6 @@ contract InitializeL2BridgeContracts is Script, Test {
             L2_STANDARD_ERC20_GATEWAY_PROXY_ADDR
         );
 
-        vm.stopBroadcast();
+        // vm.stopBroadcast();
     }
 }

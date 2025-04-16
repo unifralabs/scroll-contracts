@@ -19,6 +19,7 @@ import {L2TxFeeVault} from "../../src/L2/predeploys/L2TxFeeVault.sol";
 import {Whitelist} from "../../src/L2/predeploys/Whitelist.sol";
 import {ScrollStandardERC20} from "../../src/libraries/token/ScrollStandardERC20.sol";
 import {ScrollStandardERC20Factory} from "../../src/libraries/token/ScrollStandardERC20Factory.sol";
+import {console} from "forge-std/console.sol";
 
 // solhint-disable max-states-count
 // solhint-disable state-visibility
@@ -83,19 +84,27 @@ contract DeployL2BridgeContracts is MyScript {
     function deployL1GasPriceOracle() internal {
         address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR != address(0)) {
-            (, address msgSender, ) = vm.readCallers();
-            uint64 originNonce = vm.getNonce(msgSender);
-            vm.stopBroadcast();
-            L1GasPriceOracle tmp = new L1GasPriceOracle(owner);
-            vm.etch(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR, address(tmp).code);
+            if (vm.envUint("IS_SIMULATION") == 1) {
+                (, , address txOrigin) = vm.readCallers();
+                uint64 originNonce = vm.getNonce(txOrigin);
+                vm.stopBroadcast();
+                L1GasPriceOracle tmp = new L1GasPriceOracle(owner);
+                vm.etch(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR, address(tmp).code);
+                vm.store(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));
 
-            vm.setNonce(msgSender, originNonce);
-            vm.startBroadcast(msgSender);
-            oracle = L1GasPriceOracle(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR);
+                vm.setNonce(txOrigin, originNonce);
+                vm.startBroadcast();
+                oracle = L1GasPriceOracle(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR);
 
-            // log the address of the deployed contract
-            logAddress("L1_GAS_PRICE_ORACLE_ADDR", address(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR));
-            return;
+                // log the address of the deployed contract
+                logAddress("L1_GAS_PRICE_ORACLE_ADDR", address(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR));
+                return;
+            } else {
+                //check if exists
+                if (L1GasPriceOracle(L1_GAS_PRICE_ORACLE_PREDEPLOY_ADDR).owner() != owner) {
+                    revert("L1GasPriceOracle already exists");
+                }
+            }
         }
 
         oracle = new L1GasPriceOracle(owner);
@@ -106,17 +115,32 @@ contract DeployL2BridgeContracts is MyScript {
     function deployL2MessageQueue() internal {
         address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_MESSAGE_QUEUE_PREDEPLOY_ADDR != address(0)) {
-            (, address msgSender, ) = vm.readCallers();
-            uint64 originNonce = vm.getNonce(msgSender);
-            vm.stopBroadcast();
-            L2MessageQueue tmp = new L2MessageQueue(owner);
-            vm.etch(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, address(tmp).code);
-            vm.setNonce(msgSender, originNonce);
-            vm.startBroadcast(msgSender);
-            queue = L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR);
+            if (vm.envUint("IS_SIMULATION") == 1) {
+                (, address msgSender, address txOrigin) = vm.readCallers();
+                uint64 originNonce = vm.getNonce(txOrigin);
 
-            logAddress("L2_MESSAGE_QUEUE_ADDR", address(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR));
-            return;
+                vm.stopBroadcast();
+                console.log("DEBUG1 txOrigin", txOrigin);
+                console.log("DEBUG1 msgSender", msgSender);
+                console.log("DEBUG1 vm.addr(L2_DEPLOYER_PRIVATE_KEY)", vm.addr(L2_DEPLOYER_PRIVATE_KEY));
+                L2MessageQueue tmp = new L2MessageQueue(owner);
+                vm.etch(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, address(tmp).code);
+                vm.store(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));
+
+                vm.setNonce(txOrigin, originNonce);
+                vm.startBroadcast();
+                console.log("DEBUG2 tmp.owner()", tmp.owner());
+                console.log(
+                    "DEBUG2 L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR).owner()",
+                    L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR).owner()
+                );
+
+                queue = L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR);
+                vm.store(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));
+
+                logAddress("L2_MESSAGE_QUEUE_ADDR", address(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR));
+                return;
+            }
         }
 
         queue = new L2MessageQueue(owner);
@@ -127,13 +151,15 @@ contract DeployL2BridgeContracts is MyScript {
     function deployTxFeeVault() internal {
         address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_TX_FEE_VAULT_PREDEPLOY_ADDR != address(0)) {
-            (, address msgSender, ) = vm.readCallers();
+            (, , address msgSender) = vm.readCallers();
             uint64 originNonce = vm.getNonce(msgSender);
             vm.stopBroadcast();
             L2TxFeeVault tmp = new L2TxFeeVault(owner, L1_TX_FEE_RECIPIENT_ADDR, 10 ether);
             vm.etch(L2_TX_FEE_VAULT_PREDEPLOY_ADDR, address(tmp).code);
+            vm.store(L2_TX_FEE_VAULT_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));
+
             vm.setNonce(msgSender, originNonce);
-            vm.startBroadcast(msgSender);
+            vm.startBroadcast();
 
             logAddress("L2_TX_FEE_VAULT_ADDR", address(L2_TX_FEE_VAULT_PREDEPLOY_ADDR));
             return;
@@ -146,16 +172,20 @@ contract DeployL2BridgeContracts is MyScript {
     function deployL2Whitelist() internal {
         address owner = vm.addr(L2_DEPLOYER_PRIVATE_KEY);
         if (L2_WHITELIST_PREDEPLOY_ADDR != address(0)) {
-            (, address msgSender, ) = vm.readCallers();
-            uint64 originNonce = vm.getNonce(msgSender);
-            vm.stopBroadcast();
-            Whitelist tmp = new Whitelist(owner);
-            vm.etch(L2_WHITELIST_PREDEPLOY_ADDR, address(tmp).code);
-            vm.setNonce(msgSender, originNonce);
-            vm.startBroadcast(msgSender);
+            if (vm.envUint("IS_SIMULATION") == 1) {
+                (, , address txOrigin) = vm.readCallers();
+                uint64 originNonce = vm.getNonce(txOrigin);
+                vm.stopBroadcast();
+                Whitelist tmp = new Whitelist(owner);
+                vm.etch(L2_WHITELIST_PREDEPLOY_ADDR, address(tmp).code);
+                vm.store(L2_WHITELIST_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));
 
-            logAddress("L2_WHITELIST_ADDR", address(L2_WHITELIST_PREDEPLOY_ADDR));
-            return;
+                vm.setNonce(txOrigin, originNonce);
+                vm.startBroadcast();
+
+                logAddress("L2_WHITELIST_ADDR", address(L2_WHITELIST_PREDEPLOY_ADDR));
+                return;
+            } else {}
         }
 
         Whitelist whitelist = new Whitelist(owner);

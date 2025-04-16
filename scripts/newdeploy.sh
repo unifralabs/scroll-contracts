@@ -42,12 +42,6 @@ extract_addresses() {
 
 # ... existing code ...
 cp -f .env.example .env
-forege_cmd="forge script scripts/foundry/NewDeploy.s.sol:NewDeploy --sig run() --legacy -- --env-file ./.env"
+forege_cmd="forge script scripts/foundry/NewDeploy.s.sol:NewDeploy --sig run(uint64) 1 --legacy -- --env-file ./.env"
 echo "🔄 运行: $forege_cmd"
-$forege_cmd 2>&1
-
-#output2=$(forge script scripts/foundry/NewDeploy.s.sol:NewDeploy --sig "run()" --legacy 2>&1)
-// ... existing code ...
-#output2=$(forge script scripts/foundry/NewDeploy.s.sol:NewDeploy --sig "run()" --legacy 2>&1)
-extract_addresses "$output2"
-source "$ADDRESSES_FILE"
+$forege_cmd 2>&1 | tee log.txt
