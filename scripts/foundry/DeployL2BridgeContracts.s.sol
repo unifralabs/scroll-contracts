@@ -134,11 +134,6 @@ contract DeployL2BridgeContracts is MyScript {
                 }
                 vm.setNonce(txOrigin, originNonce);
                 vm.startBroadcast();
-                console.log("DEBUG2 tmp.owner()", tmp.owner());
-                console.log(
-                    "DEBUG2 L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR).owner()",
-                    L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR).owner()
-                );
 
                 queue = L2MessageQueue(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR);
                 vm.store(L2_MESSAGE_QUEUE_PREDEPLOY_ADDR, bytes32(uint256(0)), bytes32(uint256(uint160(owner))));

@@ -19,7 +19,6 @@ import {L1GasPriceOracle} from "../../src/L2/predeploys/L1GasPriceOracle.sol";
 import {L2TxFeeVault} from "../../src/L2/predeploys/L2TxFeeVault.sol";
 import {Whitelist} from "../../src/L2/predeploys/Whitelist.sol";
 import {ScrollOwner} from "../../src/misc/ScrollOwner.sol";
-import {console} from "forge-std/console.sol";
 
 // solhint-disable max-states-count
 // solhint-disable state-visibility
@@ -104,63 +103,44 @@ contract InitializeL2ScrollOwner is Script {
     function transferOwnership() internal {
         Ownable(L2_PROXY_ADMIN_ADDR).transferOwnership(address(owner));
 
-        console.log("DEBUG14 Ownable(L2_MESSAGE_QUEUE_ADDR).owner()", Ownable(L2_MESSAGE_QUEUE_ADDR).owner());
-        console.log("DEBUG14 msg.sender", msg.sender);
-        console.log("DEBUG14 tx.origin", tx.origin);
-
         Ownable(L2_MESSAGE_QUEUE_ADDR).transferOwnership(address(owner));
         Ownable(L1_GAS_PRICE_ORACLE_ADDR).transferOwnership(address(owner));
 
         Ownable(L2_TX_FEE_VAULT_ADDR).transferOwnership(address(owner));
         Ownable(L2_WHITELIST_ADDR).transferOwnership(address(owner));
-        console.log("DEBUG15 owner", address(owner));
-        console.log("DEBUG15.1 whitelist owner ", Ownable(L2_WHITELIST_ADDR).owner());
         Ownable(L2_SCROLL_MESSENGER_PROXY_ADDR).transferOwnership(address(owner));
-        console.log("DEBUG16");
         Ownable(L2_GATEWAY_ROUTER_PROXY_ADDR).transferOwnership(address(owner));
-        console.log("DEBUG17");
         Ownable(L2_CUSTOM_ERC20_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
-        console.log("DEBUG18");
         if (L2_DAI_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_DAI_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG19");
         if (L2_LIDO_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_LIDO_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG20");
         if (L2_ETH_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_ETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG21");
         if (L2_STANDARD_ERC20_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_STANDARD_ERC20_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG22");
         if (L2_WETH_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_WETH_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG23");
         if (L2_ERC721_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_ERC721_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG24");
         if (L2_ERC1155_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_ERC1155_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG25");
         if (L2_USDC_GATEWAY_PROXY_ADDR != address(0)) {
             Ownable(L2_USDC_GATEWAY_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG25");
         if (L2_USDC_PROXY_ADDR != address(0)) {
             Ownable(L2_USDC_PROXY_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG26");
         if (L2_USDC_MASTER_MINTER_ADDR != address(0)) {
             Ownable(L2_USDC_MASTER_MINTER_ADDR).transferOwnership(address(owner));
         }
-        console.log("DEBUG27");
     }
 
     function grantRoles() internal {
