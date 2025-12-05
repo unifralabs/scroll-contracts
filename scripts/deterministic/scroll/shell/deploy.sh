@@ -24,17 +24,17 @@ echo "using L2_RPC_ENDPOINT = $L2_RPC_ENDPOINT"
 # simulate L1
 echo ""
 echo "simulating on L1"
-forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L1_RPC_ENDPOINT" --sig "run(string,string,string)" "$PWD/volume" "L1" "verify-config" -vvvv || exit 1
+forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L1_RPC_ENDPOINT" --sig "run(string,string,string)" "$PWD/volume" "L1" "verify-config" -v || exit 1
 
 # simulate L2
 echo ""
 echo "simulating on L2"
-forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L2_RPC_ENDPOINT" --sig "run(string,string,string)" "$PWD/volume" "L2" "verify-config" -vvvv --legacy || exit 1
+forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L2_RPC_ENDPOINT" --sig "run(string,string,string)" "$PWD/volume" "L2" "verify-config" -vvv --legacy || exit 1
 
 # deploy L1
 echo ""
 echo "deploying on L1"
-forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L1_RPC_ENDPOINT" --batch-size "$BATCH_SIZE" --sig "run(string,string,string)" "$PWD/volume" "L1" "verify-config" --broadcast -vvvv || exit 1
+forge script scripts/deterministic/scroll/DeployScroll.s.sol:DeployScroll --rpc-url "$L1_RPC_ENDPOINT" --batch-size "$BATCH_SIZE" --sig "run(string,string,string)" "$PWD/volume" "L1" "verify-config" --broadcast -v || exit 1
 
 # deploy L2
 echo ""
