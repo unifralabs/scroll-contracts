@@ -1,0 +1,66 @@
+{
+  "config": {
+    "chainId": 534351,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "londonBlock": 0,
+    "archimedesBlock": 0,
+    "shanghaiBlock": 0,
+    "bernoulliBlock": 0,
+    "curieBlock": 0,
+    "darwinTime": 0,
+    "darwinV2Time": 0,
+    "euclidTime": 0,
+    "euclidV2Time": 0,
+    "feynmanTime": 0,
+    "galileoTime": 0,
+    "clique": {
+      "period": 3,
+      "epoch": 30000
+    },
+    "systemContract": {
+      "period": 1,
+      "system_contract_address": "0xC706Ba9fa4fedF4507CB7A898b4766c1bbf9be57",
+      "system_contract_slot": "0x0000000000000000000000000000000000000000000000000000000000000067"
+    },
+    "scroll": {
+      "useZktrie": false,
+      "maxTxPerBlock": 100,
+      "maxTxPayloadBytesPerBlock": 122880,
+      "feeVaultAddress": "0x5300000000000000000000000000000000000005",
+      "l1Config": {
+        "l1ChainId": "",
+        "l1MessageQueueAddress": "",
+        "l1MessageQueueV2Address": "",
+        "l1MessageQueueV2DeploymentBlock": 0,
+        "scrollChainAddress": "",
+        "l2SystemConfigAddress": "",
+        "numL1MessagesPerBlock": ""
+      },
+      "genesisStateRoot": "",
+      "missingHeaderFieldsSHA256": ""
+    }
+  },
+  "nonce": "0x0",
+  "timestamp": "0x64cfd015",
+  "extraData": "0x000000000000000000000000000000000000000000000000000000000000000048C3F81f3D998b6652900e1C3183736C238Fe4290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "gasLimit": "8000000",
+  "difficulty": "0x1",
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "coinbase": "0x0000000000000000000000000000000000000000",
+  "alloc": {
+    
+  },
+  "number": "0x0",
+  "gasUsed": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "baseFeePerGas": null
+}

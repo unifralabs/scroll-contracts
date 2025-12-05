@@ -47,6 +47,8 @@ import "./Constants.sol";
 import {ScrollConfiguration} from "./ScrollConfiguration.sol";
 import "../DeterministicDeployment.sol";
 
+import {console2} from "forge-std/console2.sol";
+
 /// @dev The minimum deployer account balance.
 uint256 constant MINIMUM_DEPLOYER_BALANCE = 0.1 ether;
 
@@ -184,6 +186,7 @@ contract DeployScroll is DeterministicDeployment, ScrollConfiguration {
         string memory layer,
         string memory scriptMode
     ) public {
+        readConfig(workdir);
         broadcastLayer = parseLayer(layer);
         ScriptMode mode = parseScriptMode(scriptMode);
 
@@ -276,9 +279,13 @@ contract DeployScroll is DeterministicDeployment, ScrollConfiguration {
     }
 
     function deployAllContracts() private {
+        console2.log("deployL1Contracts1stPass");
         deployL1Contracts1stPass();
+        console2.log("deployL2Contracts1stPass");
         deployL2Contracts1stPass();
+        console2.log("deployL1Contracts2ndPass");
         deployL1Contracts2ndPass();
+        console2.log("deployL2Contracts2ndPass");
         deployL2Contracts2ndPass();
     }
 
@@ -845,7 +852,8 @@ contract DeployScroll is DeterministicDeployment, ScrollConfiguration {
             notnull(L2_SCROLL_MESSENGER_PROXY_ADDR),
             notnull(L1_SCROLL_CHAIN_PROXY_ADDR),
             notnull(L1_MESSAGE_QUEUE_V1_PROXY_ADDR),
-            notnull(L1_MESSAGE_QUEUE_V2_PROXY_ADDR)
+            notnull(L1_MESSAGE_QUEUE_V2_PROXY_ADDR),
+            notnull(L1_ENFORCED_TX_GATEWAY_PROXY_ADDR)
         );
 
         L1_SCROLL_MESSENGER_IMPLEMENTATION_ADDR = deploy(

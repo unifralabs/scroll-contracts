@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.8.24;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
@@ -12,7 +12,9 @@ abstract contract Configuration is Script {
      * State variables *
      *******************/
 
+    string internal cfgPath;
     string internal cfg;
+    string internal contractsCfgPath;
     string internal contractsCfg;
 
     /**********************
@@ -20,10 +22,12 @@ abstract contract Configuration is Script {
      **********************/
 
     function initialize(string memory workdir) internal {
-        string memory cfgPath = string(abi.encodePacked(workdir, "/config.toml"));
+        cfgPath = string(abi.encodePacked(workdir, "/config.toml"));
+        console.log("Reading cfgPath:", cfgPath);
         cfg = vm.readFile(cfgPath);
 
-        string memory contractsCfgPath = string(abi.encodePacked(workdir, "/config-contracts.toml"));
+        contractsCfgPath = string(abi.encodePacked(workdir, "/config-contracts.toml"));
+        console.log("Reading contractsCfgPath:", contractsCfgPath);
         contractsCfg = vm.readFile(contractsCfgPath);
     }
 
@@ -40,7 +44,7 @@ abstract contract Configuration is Script {
     }
 
     function writeToml(address addr, string memory tomlPath) internal {
-        vm.writeToml(vm.toString(addr), cfg, tomlPath);
+        vm.writeToml(vm.toString(addr), contractsCfgPath, tomlPath);
     }
 
     /// @dev Ensure that `addr` is not the zero address.

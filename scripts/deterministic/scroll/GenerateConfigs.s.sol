@@ -7,16 +7,55 @@ import {ADMIN_SYSTEM_BACKEND_CONFIG_PATH, ADMIN_SYSTEM_CRON_CONFIG_PATH, BALANCE
 import {DeployScroll} from "./DeployScroll.s.sol";
 import {DeterministicDeployment} from "../DeterministicDeployment.sol";
 
-contract GenerateRollupConfig is DeployScroll {
+abstract contract GenerateConfigBase is DeployScroll {
+    function run(string memory workdir) public {
+        readConfig(workdir);
+        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
+        predictAllContracts();
+
+        _generateConfigs();
+    }
+
+    function _generateConfigs() internal virtual;
+
+    function createParentDir(string memory filePath) internal {
+        bytes memory pathBytes = bytes(filePath);
+        for (uint256 i = pathBytes.length - 1; i > 0; i--) {
+            if (pathBytes[i] == "/") {
+                string memory parentDir = substring(filePath, 0, i);
+                if (!vm.exists(parentDir)) {
+                    vm.createDir(parentDir, true);
+                }
+                break;
+            }
+        }
+    }
+
+    function substring(
+        string memory str,
+        uint256 startIndex,
+        uint256 endIndex
+    ) internal pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
+    }
+}
+
+contract GenerateRollupConfig is GenerateConfigBase {
     using stdToml for string;
 
     /***************
      * Entry point *
      ***************/
 
-    function run(string memory workdir) public {
-        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
-        predictAllContracts();
+    function _generateConfigs() internal override {
+        // ensure parent directories exist
+        createParentDir(ROLLUP_CONFIG_PATH);
+        createParentDir(GAS_ORACLE_CONFIG_PATH);
 
         generateRollupConfig(ROLLUP_CONFIG_PATH);
         generateRollupConfig(GAS_ORACLE_CONFIG_PATH);
@@ -53,14 +92,14 @@ contract GenerateRollupConfig is DeployScroll {
     }
 }
 
-contract GenerateCoordinatorConfig is DeployScroll {
+contract GenerateCoordinatorConfig is GenerateConfigBase {
     /***************
      * Entry point *
      ***************/
 
-    function run(string memory workdir) public {
-        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
-        predictAllContracts();
+    function _generateConfigs() internal override {
+        createParentDir(COORDINATOR_API_CONFIG_PATH);
+        createParentDir(COORDINATOR_CRON_CONFIG_PATH);
 
         generateCoordinatorConfig(COORDINATOR_API_CONFIG_PATH);
         generateCoordinatorConfig(COORDINATOR_CRON_CONFIG_PATH);
@@ -95,15 +134,13 @@ contract GenerateCoordinatorConfig is DeployScroll {
     }
 }
 
-contract GenerateChainMonitorConfig is DeployScroll {
+contract GenerateChainMonitorConfig is GenerateConfigBase {
     /***************
      * Entry point *
      ***************/
 
-    function run(string memory workdir) public {
-        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
-        predictAllContracts();
-
+    function _generateConfigs() internal override {
+        createParentDir(CHAIN_MONITOR_CONFIG_PATH);
         generateChainMonitorConfig(CHAIN_MONITOR_CONFIG_PATH);
     }
 
@@ -148,14 +185,14 @@ contract GenerateChainMonitorConfig is DeployScroll {
     }
 }
 
-contract GenerateBridgeHistoryConfig is DeployScroll {
+contract GenerateBridgeHistoryConfig is GenerateConfigBase {
     /***************
      * Entry point *
      ***************/
 
-    function run(string memory workdir) public {
-        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
-        predictAllContracts();
+    function _generateConfigs() internal override {
+        createParentDir(BRIDGE_HISTORY_API_CONFIG_PATH);
+        createParentDir(BRIDGE_HISTORY_FETCHER_CONFIG_PATH);
 
         generateBridgeHistoryConfig(BRIDGE_HISTORY_API_CONFIG_PATH);
         generateBridgeHistoryConfig(BRIDGE_HISTORY_FETCHER_CONFIG_PATH);
@@ -204,15 +241,13 @@ contract GenerateBridgeHistoryConfig is DeployScroll {
     }
 }
 
-contract GenerateBalanceCheckerConfig is DeployScroll {
+contract GenerateBalanceCheckerConfig is GenerateConfigBase {
     /***************
      * Entry point *
      ***************/
 
-    function run(string memory workdir) public {
-        DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
-        predictAllContracts();
-
+    function _generateConfigs() internal override {
+        createParentDir(BALANCE_CHECKER_CONFIG_PATH);
         generateBalanceCheckerConfig(BALANCE_CHECKER_CONFIG_PATH);
     }
 

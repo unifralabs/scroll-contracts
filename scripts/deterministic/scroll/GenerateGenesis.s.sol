@@ -17,6 +17,7 @@ contract GenerateGenesis is DeployScroll {
      ***************/
 
     function run(string memory workdir) public {
+        readConfig(workdir);
         DeterministicDeployment.initialize(ScriptMode.VerifyConfig, workdir);
         predictAllContracts();
 
@@ -34,6 +35,8 @@ contract GenerateGenesis is DeployScroll {
     function generateGenesisAlloc() private {
         if (vm.exists(GENESIS_ALLOC_JSON_PATH)) {
             vm.removeFile(GENESIS_ALLOC_JSON_PATH);
+        } else {
+            vm.createDir("./volume/config", true);
         }
 
         // Scroll predeploys
@@ -200,6 +203,8 @@ contract GenerateGenesis is DeployScroll {
         // initialize template file
         if (vm.exists(GENESIS_JSON_PATH)) {
             vm.removeFile(GENESIS_JSON_PATH);
+        } else {
+            vm.createDir("./volume/config/genesis", true);
         }
 
         string memory template = vm.readFile(GENESIS_JSON_TEMPLATE_PATH);
