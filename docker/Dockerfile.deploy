@@ -1,0 +1,18 @@
+# Use the latest node Debian slim base image
+# This makes installing yarn dep much easier
+ARG BASE_IMAGE=node:20-bookworm-slim
+FROM ${BASE_IMAGE}
+
+# Switch to bash shell
+SHELL ["/bin/bash", "-c"]
+WORKDIR /contracts
+
+# copy script configs
+# Copy default config to volume directory as a starting point
+COPY ./scripts/deterministic/scroll/config/config-contracts.toml /contracts/volume/config-contracts.toml
+
+# Copy deploy script
+COPY ./scripts/deterministic/scroll/shell/deploy.sh /contracts/scripts/deploy.sh
+RUN chmod +x /contracts/scripts/deploy.sh
+
+ENTRYPOINT ["/contracts/scripts/deploy.sh"]

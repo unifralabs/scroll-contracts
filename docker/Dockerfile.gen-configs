@@ -1,0 +1,15 @@
+# Use the latest node Debian slim base image
+# This makes installing yarn dep much easier
+ARG BASE_IMAGE=node:20-bookworm-slim
+FROM ${BASE_IMAGE}
+
+# Switch to bash shell
+SHELL ["/bin/bash", "-c"]
+WORKDIR /contracts
+
+# copy script configs
+# Copy update-configs script
+COPY ./scripts/deterministic/scroll/shell/update-configs.sh /contracts/scripts/update-configs.sh
+RUN chmod +x /contracts/scripts/update-configs.sh
+
+ENTRYPOINT ["/contracts/scripts/update-configs.sh"]

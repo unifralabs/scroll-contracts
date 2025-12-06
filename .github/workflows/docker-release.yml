@@ -8,7 +8,9 @@ jobs:
   build:
     name: Clone, Build, Publish
     runs-on: ubuntu-latest
-    permissions: {}
+    permissions:
+      packages: write
+      contents: read
 
     steps:
       - name: Check out repository
@@ -37,34 +39,52 @@ jobs:
         with:
           cache-binary: false
 
-      - name: Login to Dockerhub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #v3.6.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build base image
+        id: build_base_image
+        env:
+          REPOSITORY: ghcr.io/${{ github.repository_owner }}/scroll-stack-contracts
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          context: .
+          file: docker/Dockerfile.base
+          tags: |
+            ${{ env.REPOSITORY }}:base-${{ github.sha }}
 
       - name: Build deploy image
         id: build_deploy_image
         env:
-          REPOSITORY: scrolltech/scroll-stack-contracts
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+          REPOSITORY: ghcr.io/${{ github.repository_owner }}/scroll-stack-contracts
+        uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           context: .
           file: docker/Dockerfile.deploy
+          build-args: |
+            BASE_IMAGE=${{ env.REPOSITORY }}:base-${{ github.sha }}
           tags: |
             ${{ env.REPOSITORY }}:deploy-${{ github.sha }}
 
       - name: Build gen image
         id: build_gen_image
         env:
-          REPOSITORY: scrolltech/scroll-stack-contracts
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+          REPOSITORY: ghcr.io/${{ github.repository_owner }}/scroll-stack-contracts
+        uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           context: .
           file: docker/Dockerfile.gen-configs
+          build-args: |
+            BASE_IMAGE=${{ env.REPOSITORY }}:base-${{ github.sha }}
           tags: |
             ${{ env.REPOSITORY }}:gen-configs-${{ github.sha }}
