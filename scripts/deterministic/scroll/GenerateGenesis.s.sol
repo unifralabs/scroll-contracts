@@ -99,6 +99,9 @@ contract GenerateGenesis is DeployScroll {
         bytes32 _isCurieSlot = hex"0000000000000000000000000000000000000000000000000000000000000008";
         vm.store(predeployAddr, _isCurieSlot, bytes32(uint256(1)));
 
+        bytes32 _isFeynmanSlot = hex"000000000000000000000000000000000000000000000000000000000000000b";
+        vm.store(predeployAddr, _isFeynmanSlot, bytes32(uint256(1)));
+
         // reset so its not included state dump
         vm.etch(address(_oracle), "");
         vm.resetNonce(address(_oracle));
@@ -258,9 +261,16 @@ contract GenerateGenesis is DeployScroll {
             ".config.scroll.l1Config.scrollChainAddress"
         );
 
+        //TODO
+        //vm.writeJson(vm.toString(bytes32(BASE_FEE_PER_GAS)), GENESIS_JSON_PATH, ".baseFeePerGas");
         // predeploys and prefunded accounts
         string memory alloc = vm.readFile(GENESIS_ALLOC_JSON_PATH);
         vm.writeJson(alloc, GENESIS_JSON_PATH, ".alloc");
+        vm.writeJson(
+            vm.toString(L2_SYSTEM_CONFIG_PROXY_ADDR),
+            GENESIS_JSON_PATH,
+            ".config.scroll.l1Config.l2SystemConfigAddress"
+        );
     }
 
     /// @notice Sorts the allocs by address
